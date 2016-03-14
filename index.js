@@ -49,11 +49,10 @@ function formatSeconds(seconds) {
 
 function checkIn() {
     let secondsLeft = getSecondsLeft();
+    printTimeLeft();
     if (secondsLeft <= 0) {
-        console.log('');
+        console.log('\x07'); // system beep
         process.exit();
-    } else {
-        printTimeLeft();
     }
 }
 
