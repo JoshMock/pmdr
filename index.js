@@ -17,7 +17,12 @@ argv.option({
 const args = argv.run();
 
 let startTime = moment();
-let endTime = startTime.add(args.options.time || 25, 'minutes');
+
+function calculateEndTime(start, duration) {
+    return start.add(duration, 'minutes');
+}
+
+let endTime = calculateEndTime(startTime, args.options.time || 25);
 
 function getSecondsLeft() {
     let now = moment().unix();
@@ -42,10 +47,20 @@ function formatSeconds(seconds) {
     return `${hours}:${minutes}:${secs}`;
 }
 
+function checkIn() {
+    let secondsLeft = getSecondsLeft();
+    if (secondsLeft <= 0) {
+        console.log('');
+        process.exit();
+    } else {
+        printTimeLeft();
+    }
+}
+
 function printTimeLeft() {
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
     process.stdout.write(formatSeconds(getSecondsLeft()));
 }
 
-setInterval(printTimeLeft, 1000);
+setInterval(checkIn, 1000);
