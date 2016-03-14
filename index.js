@@ -5,33 +5,30 @@ const argv = require('argv');
 const moment = require('moment');
 const pkg = require('./package.json');
 
-// get command line args
-argv.version(pkg.version);
-argv.option({
-    name: 'time',
-    short: 't',
-    type: 'int',
-    description: 'How long the timer should run (in minutes)',
-    example: '"--time 25" or "-t 25"',
-});
-const args = argv.run();
-
-let startTime = moment();
+function setupArgs() {
+    // get command line args
+    argv.version(pkg.version);
+    argv.option({
+        name: 'time',
+        short: 't',
+        type: 'int',
+        description: 'How long the timer should run (in minutes)',
+        example: '"--time 25" or "-t 25"',
+    });
+    return argv.run();
+}
 
 function calculateEndTime(start, duration) {
     return start.add(duration, 'minutes');
 }
 
-let endTime = calculateEndTime(startTime, args.options.time || 25);
-
 function getSecondsLeft() {
-    let now = moment().unix();
-    let timeLeft = endTime.unix() - now;
-    return timeLeft;
+    const now = moment().unix();
+    return endTime.unix() - now;
 }
 
 function formatSeconds(seconds) {
-    let duration = moment.duration({ seconds });
+    const duration = moment.duration({ seconds });
     let secs = seconds;
 
     let hours = Math.floor(duration.as('hours'));
@@ -48,8 +45,9 @@ function formatSeconds(seconds) {
 }
 
 function checkIn() {
-    let secondsLeft = getSecondsLeft();
     printTimeLeft();
+
+    const secondsLeft = getSecondsLeft();
     if (secondsLeft <= 0) {
         console.log('\x07'); // system beep
         process.exit();
@@ -62,4 +60,7 @@ function printTimeLeft() {
     process.stdout.write(formatSeconds(getSecondsLeft()));
 }
 
+const args = setupArgs();
+const startTime = moment();
+const endTime = calculateEndTime(startTime, args.options.time || 25);
 setInterval(checkIn, 1000);
